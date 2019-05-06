@@ -8,26 +8,26 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class PistolPenguin extends ApplicationAdapter {
 	SpriteBatch batch;
-	Texture img;
-	
+	Texture background;
+
+	//Runs when the app is starts
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
+		background = new Texture("bg.png");
 	}
 
+	//Updates every frame
 	@Override
 	public void render () {
-		Gdx.gl.glClearColor(1, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		batch.begin();
-		batch.draw(img, 0, 0);
-		batch.end();
+		batch.begin(); //tells render method that we can start displaing sprites now
+		batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()); //Draws the background to fit the width and height of the screen
+
 	}
 	
 	@Override
 	public void dispose () {
 		batch.dispose();
-		img.dispose();
+		background.dispose();
 	}
 }
