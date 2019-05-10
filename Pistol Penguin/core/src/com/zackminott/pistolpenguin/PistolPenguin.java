@@ -4,12 +4,14 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
+import com.sun.org.apache.bcel.internal.generic.RETURN;
 
 import java.util.Random;
 
@@ -18,6 +20,8 @@ public class PistolPenguin extends ApplicationAdapter {
 	Texture background;
 	//ShapeRenderer shapeRenderer;
 
+	Texture gameover;
+
 	Texture[] birds;
 	int flapState = 0;
 	float birdY = 0;
@@ -25,6 +29,9 @@ public class PistolPenguin extends ApplicationAdapter {
 	Circle birdCircle;
 	Rectangle[] topTubeRectangles;
 	Rectangle[] bottomTubeRectangles;
+	int score = 0;
+	int scoringTube = 0;
+	BitmapFont font;
 
 	int gameState = 0;
 	float gravity = 1.5f;
@@ -45,14 +52,16 @@ public class PistolPenguin extends ApplicationAdapter {
 	public void create () {
 		batch = new SpriteBatch();
 		background = new Texture("bg.png");
+		gameover = new Texture("gameover.png");
 		//shapeRenderer = new ShapeRenderer();
 		birdCircle = new Circle();
-
+		font = new BitmapFont();
+		font.setColor(Color.WHITE);
+		font.getData().setScale(10);
 
 		birds = new Texture[2];
 		birds[0] = new Texture("bird.png");
 		birds[1] = new Texture("bird2.png");
-		birdY = Gdx.graphics.getHeight()/2 - birds[0].getHeight()/2;
 
 		topTube = new Texture("toptube.png");
 		bottomTube = new Texture("bottomtube.png");
@@ -61,6 +70,13 @@ public class PistolPenguin extends ApplicationAdapter {
 		distanceBetweenTubes = Gdx.graphics.getWidth() * 3 / 4;
 		topTubeRectangles = new Rectangle[numberOfTubes];
 		bottomTubeRectangles = new Rectangle[numberOfTubes];
+
+		startGame();
+	}
+
+	public void startGame(){
+
+		birdY = Gdx.graphics.getHeight()/2 - birds[0].getHeight()/2;
 
 		for(int i = 0; i < numberOfTubes; i++){
 			tubeOffset[i] = (randomGenerator.nextFloat() - 0.5f) * (Gdx.graphics.getHeight() - gap - 200); //creates float from random generator (this variable will shift the tubes up or down)
@@ -77,7 +93,24 @@ public class PistolPenguin extends ApplicationAdapter {
 		batch.begin(); //tells render method that we can start displaing sprites now
 		batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()); //Draws the background to fit the width and height of the screen
 
-		if(gameState != 0){
+		if(gameState == 1){
+
+			//Scoring System
+			if (tubeX[scoringTube] < Gdx.graphics.getWidth() / 2){
+
+				score++;
+
+				Gdx.app.log("Score", String.valueOf(score));
+
+				if (scoringTube < numberOfTubes - 1){
+					scoringTube++;
+				}
+				else{
+					scoringTube = 0;
+				}
+
+			}
+
 			if(Gdx.input.justTouched()){
 				velocity = -25;
 
@@ -88,6 +121,8 @@ public class PistolPenguin extends ApplicationAdapter {
 					tubeOffset[i] = (randomGenerator.nextFloat() - 0.5f) * (Gdx.graphics.getHeight() - gap - 200);
 				} else {
 					tubeX[i] = tubeX[i] - tubeVelocity; //Moves the tubes x position to the left every frame
+
+
 				}
 
 				batch.draw(topTube, tubeX[i], Gdx.graphics.getHeight() / 2 + gap / 2 + tubeOffset[i]);
@@ -98,14 +133,31 @@ public class PistolPenguin extends ApplicationAdapter {
 			}
 
 			//stops the bird at the bottom of the screen
-			if(birdY > 0 || velocity < 0){
+			if(birdY > 0){
 				velocity += gravity;
 				birdY -= velocity;
+			} else{
+
+				gameState = 2;
+
 			}
 
-		} else {
+		} else if (gameState == 0){
 			if(Gdx.input.justTouched()){
+
 				gameState = 1;
+
+			}
+
+		} else if (gameState == 2){
+
+			batch.draw(gameover, Gdx.graphics.getWidth() / 2 - gameover.getWidth() / 2, Gdx.graphics.getHeight() / 2 - gameover.getHeight() / 2);
+			if (Gdx.input.justTouched()){
+				gameState = 1;
+				startGame();
+				score = 0;
+				scoringTube = 0;
+				velocity = 0;
 			}
 		}
 
@@ -116,10 +168,15 @@ public class PistolPenguin extends ApplicationAdapter {
 
 
 		batch.draw(birds[flapState], Gdx.graphics.getWidth()/2 - birds[flapState].getWidth()/2, birdY);
-		batch.end();
+
+		font.draw(batch, String.valueOf(score), 100, 200);
+
+
 
 		//Set the size of the circle
 		birdCircle.set(Gdx.graphics.getWidth()/2, birdY + birds[flapState].getHeight() / 2, birds[flapState].getWidth()/2);
+
+
 
 		//shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 		//shapeRenderer.setColor(Color.RED);
@@ -129,10 +186,11 @@ public class PistolPenguin extends ApplicationAdapter {
 			//shapeRenderer.rect(tubeX[i], Gdx.graphics.getHeight() / 2 - gap / 2 - bottomTube.getHeight() + tubeOffset[i],bottomTube.getWidth(), bottomTube.getHeight());
 
 			if(Intersector.overlaps(birdCircle, topTubeRectangles[i]) || Intersector.overlaps(birdCircle, bottomTubeRectangles[i])){
-				Gdx.app.log("Collision", "Yes!");
+				gameState = 2;
 			}
 		}
 
+		batch.end();
 		//Render the circle around the bird
 		//shapeRenderer.circle(birdCircle.x, birdCircle.y, birdCircle.radius);
 		//shapeRenderer.end();
