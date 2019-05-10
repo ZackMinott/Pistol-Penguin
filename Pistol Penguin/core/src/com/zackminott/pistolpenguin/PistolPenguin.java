@@ -5,17 +5,26 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Rectangle;
 
 import java.util.Random;
 
 public class PistolPenguin extends ApplicationAdapter {
 	SpriteBatch batch;
 	Texture background;
+	//ShapeRenderer shapeRenderer;
 
 	Texture[] birds;
 	int flapState = 0;
 	float birdY = 0;
 	float velocity = 0;
+	Circle birdCircle;
+	Rectangle[] topTubeRectangles;
+	Rectangle[] bottomTubeRectangles;
 
 	int gameState = 0;
 	float gravity = 1.5f;
@@ -36,6 +45,9 @@ public class PistolPenguin extends ApplicationAdapter {
 	public void create () {
 		batch = new SpriteBatch();
 		background = new Texture("bg.png");
+		//shapeRenderer = new ShapeRenderer();
+		birdCircle = new Circle();
+
 
 		birds = new Texture[2];
 		birds[0] = new Texture("bird.png");
@@ -47,10 +59,15 @@ public class PistolPenguin extends ApplicationAdapter {
 		maxTubeOffset = Gdx.graphics.getHeight()/2 - gap/2 - 100;
 		randomGenerator = new Random();
 		distanceBetweenTubes = Gdx.graphics.getWidth() * 3 / 4;
+		topTubeRectangles = new Rectangle[numberOfTubes];
+		bottomTubeRectangles = new Rectangle[numberOfTubes];
 
 		for(int i = 0; i < numberOfTubes; i++){
 			tubeOffset[i] = (randomGenerator.nextFloat() - 0.5f) * (Gdx.graphics.getHeight() - gap - 200); //creates float from random generator (this variable will shift the tubes up or down)
-			tubeX[i] = Gdx.graphics.getWidth()/2 - topTube.getWidth()/2 + i * distanceBetweenTubes; //reset the tubes position every tap
+			tubeX[i] = Gdx.graphics.getWidth()/2 - topTube.getWidth()/2 + Gdx.graphics.getHeight() + i * distanceBetweenTubes; //reset the tubes position every tap
+
+			topTubeRectangles[i] = new Rectangle();
+			bottomTubeRectangles[i] = new Rectangle();
 		}
 	}
 
@@ -62,18 +79,22 @@ public class PistolPenguin extends ApplicationAdapter {
 
 		if(gameState != 0){
 			if(Gdx.input.justTouched()){
-				velocity = -27;
+				velocity = -25;
 
 			}
 			for(int i = 0; i < numberOfTubes; i++) {
 				if(tubeX[i] < - topTube.getWidth()){
 					tubeX[i] += numberOfTubes * distanceBetweenTubes;
+					tubeOffset[i] = (randomGenerator.nextFloat() - 0.5f) * (Gdx.graphics.getHeight() - gap - 200);
 				} else {
 					tubeX[i] = tubeX[i] - tubeVelocity; //Moves the tubes x position to the left every frame
 				}
 
 				batch.draw(topTube, tubeX[i], Gdx.graphics.getHeight() / 2 + gap / 2 + tubeOffset[i]);
 				batch.draw(bottomTube, tubeX[i], Gdx.graphics.getHeight() / 2 - gap / 2 - bottomTube.getHeight() + tubeOffset[i]);
+
+				topTubeRectangles[i] = new Rectangle(tubeX[i], Gdx.graphics.getHeight() / 2 + gap / 2 + tubeOffset[i], topTube.getWidth(), topTube.getHeight());
+				bottomTubeRectangles[i] = new Rectangle(tubeX[i], Gdx.graphics.getHeight() / 2 - gap / 2 - bottomTube.getHeight() + tubeOffset[i], bottomTube.getWidth(), bottomTube.getHeight());
 			}
 
 			//stops the bird at the bottom of the screen
@@ -96,6 +117,25 @@ public class PistolPenguin extends ApplicationAdapter {
 
 		batch.draw(birds[flapState], Gdx.graphics.getWidth()/2 - birds[flapState].getWidth()/2, birdY);
 		batch.end();
+
+		//Set the size of the circle
+		birdCircle.set(Gdx.graphics.getWidth()/2, birdY + birds[flapState].getHeight() / 2, birds[flapState].getWidth()/2);
+
+		//shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+		//shapeRenderer.setColor(Color.RED);
+
+		for(int i = 0; i < numberOfTubes; i++){
+			//shapeRenderer.rect(tubeX[i], Gdx.graphics.getHeight() / 2 + gap / 2 + tubeOffset[i], topTube.getWidth(), topTube.getHeight());
+			//shapeRenderer.rect(tubeX[i], Gdx.graphics.getHeight() / 2 - gap / 2 - bottomTube.getHeight() + tubeOffset[i],bottomTube.getWidth(), bottomTube.getHeight());
+
+			if(Intersector.overlaps(birdCircle, topTubeRectangles[i]) || Intersector.overlaps(birdCircle, bottomTubeRectangles[i])){
+				Gdx.app.log("Collision", "Yes!");
+			}
+		}
+
+		//Render the circle around the bird
+		//shapeRenderer.circle(birdCircle.x, birdCircle.y, birdCircle.radius);
+		//shapeRenderer.end();
 
 
 
