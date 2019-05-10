@@ -41,7 +41,7 @@ public class PistolPenguin extends ApplicationAdapter {
 	float gap = 400;
 	float maxTubeOffset;
 	Random randomGenerator;
-	float tubeVelocity = 4; //Used for moving the tubes to the left
+	float tubeVelocity = 7; //Used for moving the tubes to the left
 	int numberOfTubes = 4;
 	float tubeX[] = new float[numberOfTubes]; //We need to keep track of the tubes x coordinate because the tubes position keeps moving left
 	float[] tubeOffset = new float[numberOfTubes];
@@ -178,12 +178,12 @@ public class PistolPenguin extends ApplicationAdapter {
 
 
 
-		//shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-		//shapeRenderer.setColor(Color.RED);
+//		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+//		shapeRenderer.setColor(Color.RED);
 
 		for(int i = 0; i < numberOfTubes; i++){
-			//shapeRenderer.rect(tubeX[i], Gdx.graphics.getHeight() / 2 + gap / 2 + tubeOffset[i], topTube.getWidth(), topTube.getHeight());
-			//shapeRenderer.rect(tubeX[i], Gdx.graphics.getHeight() / 2 - gap / 2 - bottomTube.getHeight() + tubeOffset[i],bottomTube.getWidth(), bottomTube.getHeight());
+//			shapeRenderer.rect(tubeX[i], Gdx.graphics.getHeight() / 2 + gap / 2 + tubeOffset[i], topTube.getWidth(), topTube.getHeight());
+//			shapeRenderer.rect(tubeX[i], Gdx.graphics.getHeight() / 2 - gap / 2 - bottomTube.getHeight() + tubeOffset[i],bottomTube.getWidth(), bottomTube.getHeight());
 
 			if(Intersector.overlaps(birdCircle, topTubeRectangles[i]) || Intersector.overlaps(birdCircle, bottomTubeRectangles[i])){
 				gameState = 2;
@@ -192,8 +192,8 @@ public class PistolPenguin extends ApplicationAdapter {
 
 		batch.end();
 		//Render the circle around the bird
-		//shapeRenderer.circle(birdCircle.x, birdCircle.y, birdCircle.radius);
-		//shapeRenderer.end();
+//		shapeRenderer.circle(birdCircle.x, birdCircle.y, birdCircle.radius);
+//		shapeRenderer.end();
 
 
 
