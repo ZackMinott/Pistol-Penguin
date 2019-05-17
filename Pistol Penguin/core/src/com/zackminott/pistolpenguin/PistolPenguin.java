@@ -38,7 +38,7 @@ public class PistolPenguin extends ApplicationAdapter {
 
 	Texture topTube;
 	Texture bottomTube;
-	float gap = 400;
+	float gap = 450;
 	float maxTubeOffset;
 	Random randomGenerator;
 	float tubeVelocity = 7; //Used for moving the tubes to the left
