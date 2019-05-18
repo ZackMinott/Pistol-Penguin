@@ -2,6 +2,8 @@ package com.zackminott.pistolpenguin;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -47,9 +49,18 @@ public class PistolPenguin extends ApplicationAdapter {
 	float[] tubeOffset = new float[numberOfTubes];
 	float distanceBetweenTubes;
 
+	public static Music musicloop;
+	public static Sound jumpSound;
+	public static Sound deathSound;
+
 	//Runs when the app is starts
 	@Override
 	public void create () {
+		musicloop = Gdx.audio.newMusic(Gdx.files.internal("musicloop.ogg"));
+		musicloop.setLooping(true);
+		musicloop.play();
+		jumpSound = Gdx.audio.newSound(Gdx.files.internal("jumpsound.wav"));
+		deathSound = Gdx.audio.newSound(Gdx.files.internal("deathsound.wav"));
 		batch = new SpriteBatch();
 		background = new Texture("bg.png");
 		gameover = new Texture("gameover.png");
@@ -113,6 +124,7 @@ public class PistolPenguin extends ApplicationAdapter {
 
 			if(Gdx.input.justTouched()){
 				velocity = -25;
+				jumpSound.play();
 
 			}
 			for(int i = 0; i < numberOfTubes; i++) {
@@ -186,6 +198,7 @@ public class PistolPenguin extends ApplicationAdapter {
 //			shapeRenderer.rect(tubeX[i], Gdx.graphics.getHeight() / 2 - gap / 2 - bottomTube.getHeight() + tubeOffset[i],bottomTube.getWidth(), bottomTube.getHeight());
 
 			if(Intersector.overlaps(birdCircle, topTubeRectangles[i]) || Intersector.overlaps(birdCircle, bottomTubeRectangles[i])){
+				deathSound.play();
 				gameState = 2;
 			}
 		}
